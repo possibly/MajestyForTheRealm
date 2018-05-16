@@ -11,6 +11,12 @@ class Location(object):
     self.workers -= 1
     return self.workers
 
+  def score_value(self):
+    if side == 'A':
+      return value_a
+    else:
+      return value_b
+
 class Mill(Location):
   name = 'Mill'
   value_a = 10
