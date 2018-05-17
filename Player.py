@@ -1,5 +1,4 @@
 from Locations import *
-location_order = [Mill.name, Brewery.name, Cottage.name, Guardhouse.name, Barracks.name, Inn.name, Castle.name]
 
 class Player(object):
   def __init__(self, locations_sides, starting_wealth=0, starting_meeples=5):
@@ -25,3 +24,11 @@ class Player(object):
     # Includes the Infirmary.
     workers_per_location = map((lambda location: location.workers), self.locations.values())
     return reduce((lambda workers, sum: workers + sum), workers_per_location)
+
+  def send_worker_to_infirmary(self, location):
+    self.locations[location].removeWorker()
+    self.locations[Infirmary.name].addWorker()
+
+  def gain_worker_from_infirmary(self):
+    location_name = self.locations[Infirmary.name].removeWorker()
+    self.locations[location_name].addWorker()

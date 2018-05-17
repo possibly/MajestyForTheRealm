@@ -5,11 +5,17 @@ total_wealth = 1010
 
 def score_location(scorer, location_name, other_players):
   scorer.locations[location_name].score()
-  wealth, meeples, other = self.locations[location_name].score().values()
+  wealth, meeples, effect, other = self.locations[location_name].score().values()
+  if effect != 0:
+    # This must come first, since Cottage effect applies before calculating Wealth.
+    scorer.gain_worker_from_infirmary()
   scorer.wealth += wealth(scorer)
   scorer.meeples += meeples(scorer)
   for other_player in other_players:
-    other_player.wealth += other(other_player)
+    o_wealth, o_location = other(other_player).values()
+    other_player.wealth += o_wealth
+    if o_location != None: # Only for knights.
+      other_player.send_worker_to_infirmary(o_location)
 
 def score_final(players):
   for player in players:
