@@ -20,11 +20,6 @@ class Player(object):
     # Does not include the Infirmary.
     return filter((lambda location: location.workers > 0 and location.name != Infirmary.name), self.locations.values())
 
-  def total_workers(self):
-    # Includes the Infirmary.
-    workers_per_location = map((lambda location: location.workers), self.locations.values())
-    return reduce((lambda workers, sum: workers + sum), workers_per_location)
-
   def send_worker_to_infirmary(self, location):
     self.locations[location].removeWorker()
     self.locations[Infirmary.name].addWorker()

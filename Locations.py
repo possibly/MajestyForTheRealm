@@ -1,4 +1,4 @@
-location_order = [Mill.name, Brewery.name, Cottage.name, Guardhouse.name, Barracks.name, Inn.name, Castle.name]
+from copy import deepcopy as dcopy
 
 class Location(object):
   def __init__(self, workers=0, side='A'):
@@ -13,11 +13,11 @@ class Location(object):
     self.workers -= 1
     return self.workers
 
-  def score_value(self):
-    if side == 'A':
-      return value_a
+  def value(self):
+    if self.side == 'A':
+      return self.value_a
     else:
-      return value_b
+      return self.value_b
 
 class Mill(Location):
   name = 'Mill'
@@ -26,8 +26,10 @@ class Mill(Location):
   def __init__(self, workers=0, side='A'):
     super(Mill, self).__init__(workers, side)
 
-  def score(self):
-    return {'wealth': (lambda owner: self.workers * 2), 'meeples': (lambda owner: 0), 'effect': 0, 'other': (lambda player: 0)}
+  def score(self, scorer, other_players):
+    s = dcopy(scorer)
+    s.wealth += self.workers*2
+    return [s, other_players]
 
 class Brewery(Location):
   name = 'Brewery'
@@ -36,14 +38,15 @@ class Brewery(Location):
   def __init__(self, workers=0, side='A'):
     super(Brewery, self).__init__(workers, side)
 
-  def score(self):
-    return {'wealth': (lambda owner: self.workers * 2), 'meeples': (lambda owner: self.workers), 'effect': 0, 'other': _other_score_a}
-
-  def _other_score_a(self, player):
-    if player.locations[Mill.name].workers > 0:
-      return {'wealth': 2, 'location': None}
-    else:
-      return {'wealth': 0, 'location': None}
+  def score(self, scorer, other_players):
+    s = dcopy(scorer)
+    op = dcopy(other_players)
+    s.wealth += self.workers * 2
+    s.meeples += self.workers
+    for other_player in op:
+      if other_player.locations[Mill.name].workers > 0:
+        other_player.wealth += 2
+    return [s, op]
 
 class Cottage(Location):
   name = 'Cottage'
@@ -52,11 +55,11 @@ class Cottage(Location):
   def __init__(self, workers=0, side='A'):
     super(Cottage, self).__init__(workers, side)
 
-  def score(self):
-    return {'wealth': _owner_score_a, 'meeples': (lambda owner: 0), 'effect': 1, 'other': (lambda player: 0)}
-
-  def _owner_score_a(self, owner):
-    return (owner.locations[Mill.name].workers + owner.locations[Brewery.name].workers + self.workers) * 2
+  def score(self, scorer, other_players):
+    s = dcopy(scorer)
+    s.gain_worker_from_infirmary()
+    s.wealth += (s.locations[Mill.name].workers + s.locations[Brewery.name].workers + self.workers) * 2
+    return [s, other_players]
 
 class Guardhouse(Location):
   name = 'Guardhouse'
@@ -65,11 +68,10 @@ class Guardhouse(Location):
   def __init__(self, workers=0, side='A'):
     super(Guardhouse, self).__init__(workers, side)
 
-  def score(self):
-    return {'wealth': _owner_score_a, 'meeples': (lambda owner: 0), 'effect': 0, 'other': (lambda player: 0)}
-
-  def _owner_score_a(self, owner):
-    return (owner.locations[Barracks.name].workers + owner.locations[Inn.name].workers + self.workers) * 2
+  def score(self, scorer, other_players):
+    s = dcopy(scorer)
+    s.wealth += (owner.locations[Barracks.name].workers + owner.locations[Inn.name].workers + self.workers) * 2
+    return [s, other_players]
 
 class Barracks(Location):
   name = 'Barracks'
@@ -78,15 +80,17 @@ class Barracks(Location):
   def __init__(self, workers=0, side='A'):
     super(Barracks, self).__init__(workers, side)
 
-  def score(self):
-    return {'wealth': (lambda owner: self.workers * 3), 'meeples': (lambda owner: 0), 'effect': 0, 'other': (lambda player: 0)}
-
-  def _other_score_a(self, player):
-    if player.locations[Guardhouse.name].workers < self.workers:
-      for location_name in location_order
-        if player.locations[location_name].workers > 0
-          return {'wealth': 0, 'location': player.locations[location_name]}
-    return {'wealth': 0, 'location': None}
+  def score(self, scorer, other_players):
+    s = dcopy(scorer)
+    op = dcopy(other_players)
+    s.wealth += self.workers * 3
+    for other_player in op:
+      if other_player.locations[Guardhouse.name].workers < self.workers:
+        for location_name in location_order:
+          if other_player.locations[location_name].workers > 0:
+            other_player.send_worker_to_infirmary()
+            break
+    return [s, op]
 
 class Inn(Location):
   name = 'Inn'
@@ -95,14 +99,14 @@ class Inn(Location):
   def __init__(self, workers=0, side='A'):
     super(Inn, self).__init__(workers, side)
 
-  def score(self):
-    return {'wealth': (lambda owner: self.workers * 4), 'meeples': (lambda owner: 0), 'effect': 0, 'other': _other_score_a}
-
-  def _other_score_a(self, player):
-    if player.locations[Brewery.name].workers > 0:
-      return 3
-    else:
-      return 0
+  def score(self, scorer, other_players):
+    s = dcopy(scorer)
+    op = dcopy(other_players)
+    s.wealth += self.workers * 4
+    for other_player in op:
+      if other_player.locations[Brewery.name].workers > 0:
+        other_player.wealth += 3
+    return [s, op]
 
 class Castle(Location):
   name = 'Castle'
@@ -111,8 +115,11 @@ class Castle(Location):
   def __init__(self, workers=0, side='A'):
     super(Castle, self).__init__(workers, side)
 
-  def score(self):
-    return {'wealth': (lambda owner: self.workers * 5), 'meeples': (lambda owner: self.workers), 'effect': 0, 'other': (lambda player: 0)}
+  def score(self, scorer, other_players):
+    s = dcopy(scorer)
+    s.wealth += self.workers * 5
+    s.meeples += self.workers
+    return [s, other_players]
 
 class Infirmary(Location):
   name = 'Infirmary'
@@ -122,9 +129,6 @@ class Infirmary(Location):
   def __init__(self, workers=0, side='A'):
     super(Infirmary, self).__init__(workers, side)
 
-  def score(self):
-    return {'wealth': (lambda owner: self.workers * -1), 'meeples': (lambda owner: 0), 'effect': 0, 'other': (lambda player: 0)}
-
   def addWorker(self, location):
     self.worker += 1
     stack.append(location.name)
@@ -132,3 +136,5 @@ class Infirmary(Location):
   def removeWorker(self):
     self.worker -= 1
     return stack.pop()
+
+location_order = [Mill.name, Brewery.name, Cottage.name, Guardhouse.name, Barracks.name, Inn.name, Castle.name]
