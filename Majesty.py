@@ -1,5 +1,3 @@
-from Scoring import *
-from Locations import *
 from Player import *
 
 total_wealth = 1010
@@ -11,4 +9,4 @@ class Game(object):
   def __init__(self, num_players):
     self.players = []
     for i in range(0, num_players):
-      self.players.append(Player(['a', 'a', 'a', 'a', 'a', 'a' ,'a', 'a']))
+      self.players.append(Player())

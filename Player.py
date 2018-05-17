@@ -1,29 +1,43 @@
 from Locations import *
+from Constants import *
 
 class Player(object):
-  def __init__(self, locations_sides, starting_wealth=0, starting_meeples=5):
-    # locations_sides is an array of length 8 and either 'A' or 'B' in each index.
-    self.locations = {
-      Mill.name: Mill(side=locations_sides[0]),
-      Brewery.name: Brewery(side=locations_sides[1]),
-      Cottage.name: Cottage(side=locations_sides[2]),
-      Guardhouse.name: Guardhouse(side=locations_sides[3]),
-      Barracks.name: Barracks(side=locations_sides[4]),
-      Inn.name: Inn(side=locations_sides[5]),
-      Castle.name: Castle(side=locations_sides[6]),
-      Infirmary.name: Infirmary(side=locations_sides[7])
-    }
+  def __init__(self, sides=[SIDE_A,SIDE_A,SIDE_A,SIDE_A,SIDE_A,SIDE_A,SIDE_A,SIDE_A], 
+                     order=[MILL, BREWERY, COTTAGE, GUARDHOUSE, BARRACKS, INN, CASTLE], 
+                     starting_wealth=0, 
+                     starting_meeples=5):
+    self[MILL] = Mill(side=sides[0])
+    self[BREWERY] = Brewery(side=sides[1])
+    self[COTTAGE] = Cottage(side=sides[2])
+    self[GUARDHOUSE] = Guardhouse(side=sides[3])
+    self[BARRACKS] = Barracks(side=sides[4])
+    self[INN] = Inn(side=sides[5])
+    self[CASTLE] = Castle(side=sides[6])
+    self[INFIRMARY] = Infirmary(side=sides[7])
+    self.order = order
     self.wealth = starting_wealth
     self.meeples = starting_meeples
 
+  def __getitem__(self, key):
+    return getattr(self, key)
+
+  def __setitem__(self, key, value):
+    return setattr(self, key, value)
+
   def occupied_locations(self):
     # Does not include the Infirmary.
-    return filter((lambda location: location.workers > 0 and location.name != Infirmary.name), self.locations.values())
+    return filter((lambda l_name: self[lname].workers > 0), self.order)
 
-  def send_worker_to_infirmary(self, location):
-    self.locations[location].removeWorker()
-    self.locations[Infirmary.name].addWorker()
+  def send_worker_to_infirmary(self, location_name):
+    self[location_name].removeWorker()
+    self[INFIRMARY].addWorker()
 
   def gain_worker_from_infirmary(self):
-    location_name = self.locations[Infirmary.name].removeWorker()
-    self.locations[location_name].addWorker()
+    location_name = self[INFIRMARY].removeWorker()
+    self[location_name].addWorker()
+
+  def score(self, location_name, other_players):
+    return self[location_name].score(self, other_players)
+
+  def addWorker(self, location_name):
+    return self[location_name].addWorker()
