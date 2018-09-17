@@ -19,4 +19,3 @@ class TierOne(CardSet):
     self.MillerKnights = [MillerKnight()]
     self.Queens = [Queen()]*3
     self.QueenGuards = [QueenGuard()]
-

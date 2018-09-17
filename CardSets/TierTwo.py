@@ -1,6 +1,6 @@
 from CardSet import *
 
-class TierOne(CardSet):
+class TierTwo(CardSet):
 
   def __init__(self):
     super(TierOne, self).__init__()
