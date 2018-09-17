@@ -3,7 +3,7 @@ from CardSet import *
 class TierTwo(CardSet):
 
   def __init__(self):
-    super(TierOne, self).__init__()
+    super(TierTwo, self).__init__()
     self.Brewers = [Brewer()]*2
     self.Guards = [Guard()]*2
     self.Innkeepers = [Innkeeper()]*2
