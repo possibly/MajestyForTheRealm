@@ -18,6 +18,6 @@ class TierTwo(CardSet):
     self.MedicGuards = [MedicGuard(), MedicGuard()]
     self.Millers = [Miller()]*2
     self.MillerBrewers = [MillerBrewer()]
-    self.MillerKnights = [MillerKnights()]
+    self.MillerKnights = [MillerKnight()]
     self.Queens = [Queen()]*2
     self.QueenMedics = [QueenMedic()]
