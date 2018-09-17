@@ -17,7 +17,7 @@ class Player(object):
     self.meeples = meeples
     self.locations_hash = {}
     for l in self.locations:
-      self.locations_hash[l.__name__] = l
+      self.locations_hash[type(l).__name__] = l
 
   def copy(self, locations):
     Player(locations, self.wealth, self.meeples)
