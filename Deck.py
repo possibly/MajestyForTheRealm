@@ -7,7 +7,7 @@ class Deck(object):
     self.cards = cards
 
   def new(self, num_players):
-    return Deck(_new_game_cards(num_players))
+    return Deck(self._new_game_cards(num_players))
 
   def _new_game_cards(self, num_players):
     tier_one_cards = shuffle(TierOne().cards())
