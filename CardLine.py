@@ -1,7 +1,7 @@
 class CardLine(object):
   def __init__(self, cards=[]):
-  	if len(cards) > 6:
-  		raise ValueError('Cards was greater than 6 -- it must be less than or equal to 6!')
+    if len(cards) > 6:
+      raise ValueError('Cards was greater than 6 -- it must be less than or equal to 6!')
     self.cards = cards
 
   def pick(self, position):
